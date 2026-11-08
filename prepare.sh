@@ -90,12 +90,13 @@ pushd "${SCRIPT_PATH}/svsm"
 git submodule sync
 git submodule update --init
 make aproxy
-SVSM_FEATURES="vtpm,attest,virtio-drivers"
+SVSM_FEATURES="vtpm,attest,virtio-drivers,uefivars,enable-console-log,secureboot,persistence"
 if [[ $OPT_VARSTORE -eq 1 ]]; then
-  SVSM_FEATURES+=",uefivars,secureboot"
+  SVSM_FEATURES+=""
 fi
 {
   set -x
-  FW_FILE=${SCRIPT_PATH}/edk2/Build/OvmfX64/DEBUG_GCC/FV/OVMF.fd FEATURES=$SVSM_FEATURES make
+  FW_FILE=${SCRIPT_PATH}/edk2/Build/OvmfX64/DEBUG_GCC/FV/OVMF.fd cargo xbuild -f $SVSM_FEATURES configs/qemu-target.json
+  #PcdUninstallMemAttrProtocolFW_FILE=/usr/share/edk2/ovmf/OVMF.amdsev.fd FEATURES=$SVSM_FEATURES make
 }
 popd
